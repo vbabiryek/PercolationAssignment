@@ -82,7 +82,8 @@ public class PercolationStats {
         int k = StdIn.readInt();
 
         PercolationStats percolationStats = new PercolationStats(v, k);
-        String interval = percolationStats.confidenceLo() + ", " + percolationStats.confidenceHi();
+        String interval = percolationStats.confidenceLo() + ", " + percolationStats
+                .confidenceHi();
         StdOut.println("the mean here is: " + percolationStats.mean());
         StdOut.println("the standard deviation here is: " + percolationStats.stddev());
         StdOut.println("95% confidence interval here is: " + interval);

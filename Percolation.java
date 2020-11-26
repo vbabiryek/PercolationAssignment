@@ -54,13 +54,8 @@ public class Percolation {
     }
 
     public boolean isFull(int row, int col) {
-        if (isOpen(row, col) && weightedQuickUnionUF.find(virtualTop) == weightedQuickUnionUF
-                .find(virtualBottom)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return isOpen(row, col) && weightedQuickUnionUF.find(virtualTop) == weightedQuickUnionUF
+                .find(virtualBottom);
     }
 
     // If both i and j are valid and open sites, we merge the converted 1D integer into our set
@@ -93,6 +88,7 @@ public class Percolation {
     // If both virtualTop and virtualBottom are
     // in the same set (weightedQuickUnionUF), then return true.
     public boolean percolates() {
-        return weightedQuickUnionUF.find(virtualTop) == weightedQuickUnionUF.find(virtualBottom);
+        return weightedQuickUnionUF.find(virtualTop) == weightedQuickUnionUF
+                .find(virtualBottom);
     }
 }
