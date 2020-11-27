@@ -4,15 +4,15 @@
  *  Last modified:     11/24/2020
  **************************************************************************** */
 
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
 
-    private double[] statResults;
-    private int numOfTrials;
+    private static final double CONFIDENCE = 1.96;
+    private final double[] statResults;
+    private final int numOfTrials;
 
 
     // perform independent trials on an n-by-n grid
@@ -21,7 +21,6 @@ public class PercolationStats {
             throw new IllegalArgumentException();
         }
         numOfTrials = trials;
-        int openSites = 0;
 
         statResults = new double[numOfTrials];
         for (int i = 0; i < numOfTrials; i++) {
@@ -32,7 +31,6 @@ public class PercolationStats {
                 int col = StdRandom.uniform(1, n + 1);
                 if (!percolation.isOpen(row, col)) {
                     percolation.open(row, col);
-                    openSites++;
                 }
             }
         }
@@ -69,17 +67,17 @@ public class PercolationStats {
 
     // low endpoint of 95% confidence interval == "normal score" for the 97.5 percentile point
     public double confidenceLo() {
-        return mean() - (1.96 * stddev() / Math.sqrt(numOfTrials));
+        return mean() - (CONFIDENCE * stddev() / Math.sqrt(numOfTrials));
     }
 
     // high endpoint of 95% confidence interval == "normal score" for the 97.5 percentile point
     public double confidenceHi() {
-        return mean() + (1.96 * stddev() / Math.sqrt(numOfTrials));
+        return mean() + (CONFIDENCE * stddev() / Math.sqrt(numOfTrials));
     }
 
     public static void main(String[] args) {
-        int v = StdIn.readInt();
-        int k = StdIn.readInt();
+        int v = Integer.parseInt(args[0]);
+        int k = Integer.parseInt(args[1]);
 
         PercolationStats percolationStats = new PercolationStats(v, k);
         String interval = percolationStats.confidenceLo() + ", " + percolationStats

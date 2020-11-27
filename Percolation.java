@@ -10,37 +10,37 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 // the matrix proves to percolate by identifying two virtual sites in the same set.
 public class Percolation {
     private boolean[][] matrix;
-    private WeightedQuickUnionUF weightedQuickUnionUF;
+    private final WeightedQuickUnionUF forwardWeightedQuickUnionUF;
+    private final WeightedQuickUnionUF backwashWeightedQuickUnionUF;
     private final int virtualTop;
     private final int virtualBottom;
     private int openSites;
+    private final int n;
 
     public Percolation(int n) {
         if (n <= 0) {
             throw new IllegalArgumentException();
         }
         matrix = new boolean[n][n];
-        weightedQuickUnionUF = new WeightedQuickUnionUF(n * n + 2);
+        forwardWeightedQuickUnionUF = new WeightedQuickUnionUF(n * n + 1);
+        backwashWeightedQuickUnionUF = new WeightedQuickUnionUF(n * n + 2);
         virtualTop = 0;
         virtualBottom = n * n + 1;
         openSites = 0;
-
-        if (n > 1) {
-            for (int k = 1; k <= n; k++) {
-                weightedQuickUnionUF.union(convertToOneDimension(1, k),
-                                           virtualTop); // connect virtual top to matrix
-                weightedQuickUnionUF.union(convertToOneDimension(n, k),
-                                           virtualBottom); // connect virtual bottom to matrix
-            }
-        }
+        this.n = n;
     }
 
     public void open(int i, int j) {
         matrix[i - 1][j - 1] = true;
+        openSites++;
 
-        if (matrix.length == 1) {
-            weightedQuickUnionUF.union(convertToOneDimension(i, j), virtualTop);
-            weightedQuickUnionUF.union(convertToOneDimension(i, j), virtualBottom);
+        if (i == 1) {
+            forwardWeightedQuickUnionUF.union(convertToOneDimension(i, j), virtualTop);
+            backwashWeightedQuickUnionUF.union(convertToOneDimension(i, j), virtualTop);
+        }
+
+        if (i == n) {
+            backwashWeightedQuickUnionUF.union(convertToOneDimension(i, j), virtualBottom);
         }
 
         neighborCheck(convertToOneDimension(i, j), i, j - 1);
@@ -54,30 +54,30 @@ public class Percolation {
     }
 
     public boolean isFull(int row, int col) {
-        return isOpen(row, col) && weightedQuickUnionUF.find(virtualTop) == weightedQuickUnionUF
-                .find(virtualBottom);
+        return forwardWeightedQuickUnionUF.find(virtualTop) == forwardWeightedQuickUnionUF
+                .find(convertToOneDimension(row, col));
     }
 
     // If both i and j are valid and open sites, we merge the converted 1D integer into our set
     private void neighborCheck(int w, int i, int j) {
         if (isValid(i) && isValid(j)) {
             if (isOpen(i, j)) {
-                weightedQuickUnionUF.union(w, convertToOneDimension(i, j));
-                openSites++;
+                forwardWeightedQuickUnionUF.union(w, convertToOneDimension(i, j));
+                backwashWeightedQuickUnionUF.union(w, convertToOneDimension(i, j));
             }
         }
     }
 
     // IndexOutOfBounds check
     private boolean isValid(int i) {
-        int n = matrix.length;
-        return (i >= 1 && i <= n);
+        int a = matrix.length;
+        return (i >= 1 && i <= a);
     }
 
     // Converts our 2D integer to a 1D integer
     private int convertToOneDimension(int x, int y) {
-        int n = matrix.length;
-        return (x - 1) * n + y;
+        int a = matrix.length;
+        return (x - 1) * a + y;
     }
 
     // keep track of open sites
@@ -88,7 +88,7 @@ public class Percolation {
     // If both virtualTop and virtualBottom are
     // in the same set (weightedQuickUnionUF), then return true.
     public boolean percolates() {
-        return weightedQuickUnionUF.find(virtualTop) == weightedQuickUnionUF
+        return backwashWeightedQuickUnionUF.find(virtualTop) == backwashWeightedQuickUnionUF
                 .find(virtualBottom);
     }
 }
